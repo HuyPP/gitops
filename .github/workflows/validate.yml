@@ -1,0 +1,22 @@
+# file: .github/workflows/validate.yml
+name: validate-manifests
+
+on:
+  pull_request:
+    paths:
+      - "k8s/**" # Chỉ kích hoạt khi có sự thay đổi file trong thư mục k8s/
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Kubeconform
+        run: |
+          curl -sSLo kc.tgz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar -xzf kc.tgz && sudo mv kubeconform /usr/local/bin/
+
+      - name: Run Kubeconform Linter
+        run: kubeconform -strict -summary k8s/
